@@ -1,0 +1,7 @@
+{
+   "components" : {
+      "outvetory:storage" : {
+         "replace_stockpile" : true
+      }
+   }
+}

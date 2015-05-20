@@ -1,6 +1,15 @@
 {
-   "info" : {
-      "name" : "Outvetory",
-      "version" : 1
-   }
+  "info" : {
+    "version" : 1
+  },
+
+  "server_init_script" : "file(server_init)",
+  
+ 	"components" : {
+ 		"storage" : "file(components/storage.lua)"
+ 	},
+
+  "mixintos" : {
+   "stonehearth:stockpile" : "file(mixintos/stockpile_entity.json)"
+  }
 }
