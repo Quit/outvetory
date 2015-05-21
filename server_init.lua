@@ -3,11 +3,9 @@ local patch = require('lib.patch')
 outvetory = class()
 
 function outvetory:__init()
-   radiant.events.listen(radiant, 'radiant:required_loaded', self, self._patch_all)
-end
-
-function outvetory:_patch_all()
-   jelly.patch.lua('stonehearth.components.stockpile.stockpile_component', 'outvetory.components.stockpile')
+   -- Patch everything in advance.
+   patch.lua('stonehearth.services.server.inventory.inventory_service', 'outvetory.services.server.inventory.inventory_service')
+   patch.lua('stonehearth.components.stockpile.stockpile_component', 'outvetory.components.stockpile')
 end
 
 return outvetory()

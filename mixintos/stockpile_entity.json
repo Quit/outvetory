@@ -1,7 +1,15 @@
 {
    "components" : {
       "outvetory:storage" : {
-         "replace_stockpile" : true
+         "can_accept" : {
+            "component" : "stonehearth:stockpile",
+            "method" : "can_stock_entity"
+         },
+
+         "is_full" : {
+            "component" : "stonehearth:stockpile",
+            "method" : "is_full"
+         }
       }
    }
 }
