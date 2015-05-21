@@ -20,7 +20,7 @@ function InventoryService:initialize()
   self:_register_score_functions()
 
   -- TODO: Find a better way to hook this up. Somehow?
-  radiant.events.listen_once(radiant, 'stonehearth:gameloop', self, self._install_traces)
+  -- radiant.events.listen_once(radiant, 'stonehearth:gameloop', self, self._install_traces)
 
   -- entity_id => outvetory:storage
   self._storages = {}
