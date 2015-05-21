@@ -134,13 +134,19 @@ function InventoryService:_install_traces()
   self._destroy_listener = radiant.events.listen(radiant, 'radiant:entity:post_destroy', self, self._on_item_destroyed)
 end
 
+--
+---- Storage 2016 stuff
+--
+
 -- Callback; whenever an item is added to the world.
 function InventoryService:_add_item(entity)
+  printf('found lying around: %s', tostring(entity))
+
   -- Try it in every storage we have
   for entity_id, storage in pairs(self._storages) do
-    if storage:can_accept(entity) then
-      printf('send %s to %s', tostring(entity), tostring(storage._entity))
-      error('NYI')
+    if storage:can_accept(entity) then -- For now, send a worker immediately
+      printf('send %s to storage %s', tostring(entity), tostring(storage._entity))
+      self:_move_item(entity, storage)
       return
      end
   end
@@ -156,8 +162,13 @@ function InventoryService:_remove_item(entity)
   self._queue[entity:get_id()] = nil
 end
 
+-- Moves `entity` to `storage`
+function InventoryService:move_item(entity, storage)
+  error('NYI')
+end
+
 function InventoryService:_on_item_destroyed(entity_id) -- TODO: naming
-  print('destroyed:', entity_id)
+  printf('destroyed: %s', tostring(entity_id))
   self._queue[entity_id] = nil
 end
 
@@ -169,6 +180,12 @@ end
 -- Callback; whenever a storage is removed from the world.
 function InventoryService:remove_storage(storage)
   self._storages[storage:get_id()] = nil
+end
+
+-- Callback; whenever a storage has been updated and we need to re-evaluate our whole world. Blast.
+-- added_items: Items that this storage has now taken care of. These items will be removed from our queue.
+-- removed_items: Items that no longer 
+function InventoryService:update_storage(storage, added_items, removed_items)
 end
 
 return InventoryService

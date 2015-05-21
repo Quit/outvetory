@@ -42,11 +42,14 @@ end
 
 -- Returns true if this entity can be accepted, false otherwise
 function StorageComponent:can_accept(item_entity)
-   if self:is_full() then
-      return false
-   end
-
    return self._can_accept_bind(item_entity)
+end
+
+-- Sub-components have to call this function to trigger an update in the storage service
+-- `added_items` are items that were previously not part of the storage, but are now
+-- `removed_items` are items that were part of the storage, but are no longer
+function StorageComponent:trigger_update(added_items, removed_items)
+   stonehearth.inventory:update_storage(self._entity, added_items, removed_items)
 end
 
 return StorageComponent
