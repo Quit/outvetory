@@ -266,7 +266,7 @@ local function get_restock_filter_fn (filter_key, filter, player_id)
       log:detail('stockpile: %s', containing_stockpile_owner_id)
 
       -- If the current owner is neutral, or friendly, towards us...
-      local already_stocked = not radiant.entities.are_players_hostile(player_id, containing_stockpile_owner_id)
+      local already_stocked = not stonehearth.player:are_players_hostile(player_id, containing_stockpile_owner_id)
 
       -- ... we're not looting him. Yet. But he better watch out.
       if already_stocked then
