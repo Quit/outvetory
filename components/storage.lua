@@ -21,6 +21,8 @@ function StorageComponent:initialize(entity, json)
    radiant.events.listen_once(radiant, 'stonehearth:gameloop', function()
       self._can_accept_bind = get_binding(entity, json.can_accept)
       self._is_full_bind = get_binding(entity, json.is_full)
+      self._create_restock_task = get_binding(entity, json.create_restock_task)
+      
       stonehearth.inventory:add_storage(self._entity)
    end)
 end
@@ -50,6 +52,12 @@ end
 -- `removed_items` are items that were part of the storage, but are no longer
 function StorageComponent:trigger_update(added_items, removed_items)
    stonehearth.inventory:update_storage(self._entity, added_items, removed_items)
+end
+
+-- Tells the entity to create a new restock task
+-- `entity`: Entity that is to be restocked
+function StorageComponent:create_restock_task(entity)
+   return self._create_restock_task(entity)
 end
 
 return StorageComponent

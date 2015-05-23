@@ -20,7 +20,7 @@ function InventoryService:initialize()
   self:_register_score_functions()
 
   -- TODO: Find a better way to hook this up. Somehow?
-  -- radiant.events.listen_once(radiant, 'stonehearth:gameloop', self, self._install_traces)
+  radiant.events.listen_once(radiant, 'stonehearth:gameloop', self, self._install_traces)
 
   -- entity_id => outvetory:storage
   self._storages = {}
@@ -146,7 +146,7 @@ function InventoryService:_add_item(entity)
   for entity_id, storage in pairs(self._storages) do
     if storage:can_accept(entity) then -- For now, send a worker immediately
       printf('send %s to storage %s', tostring(entity), tostring(storage._entity))
-      self:_move_item(entity, storage)
+      self:move_item(entity, storage)
       return
      end
   end
@@ -157,14 +157,18 @@ function InventoryService:_add_item(entity)
 end
 
 -- Callback; whenever an item is removed from the world.
-function InventoryService:_remove_item(entity)
-  print('removed entity:', entity)
-  self._queue[entity:get_id()] = nil
+function InventoryService:_remove_item(entity_id)
+  print('removed entity:', entity_id)
+  self._queue[entity_id] = nil
 end
 
 -- Moves `entity` to `storage`
-function InventoryService:move_item(entity, storage)
-  error('NYI')
+function InventoryService:move_item(entity, storage, keep_queued)
+  storage:create_restock_task(entity)
+
+  if not keep_queued then
+    self._queue[entity:get_id()] = nil
+  end
 end
 
 function InventoryService:_on_item_destroyed(entity_id) -- TODO: naming
@@ -174,7 +178,20 @@ end
 
 -- Callback; whenever a storage is added to the world.
 function InventoryService:add_storage(storage)
-  self._storages[storage:get_id()] = storage:get_component('outvetory:storage')
+  local storage_component = storage:get_component('outvetory:storage')
+  self._storages[storage:get_id()] = storage_component
+
+  local moved = {}
+  for entity_id, entity in pairs(self._queue) do
+    if storage_component:can_accept(entity) then
+      self:move_item(entity, storage_component)
+      table.insert(moved, entity_id)
+    end
+  end
+
+  for _, id in pairs(moved) do
+    self._queue[id] = nil
+  end
 end
 
 -- Callback; whenever a storage is removed from the world.

@@ -1,5 +1,9 @@
 local patch = require('lib.patch')
 
+if not rawget(_G, 'printf') then
+   rawset(_G, 'printf', function() end)
+end
+
 outvetory = class()
 
 function outvetory:__init()

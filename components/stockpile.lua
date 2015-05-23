@@ -117,7 +117,10 @@ function StockpileComponent:initialize(entity, json)
   self._entity = entity
   self._sv = self.__saved_variables:get_data()
 
-  -- 
+  -- List of restock tasks that we are currently doing.
+  -- (are tasks persistent?)
+  self._restock_tasks = {}
+
   if not self._sv.stocked_items then
     self._sv.active = true -- Is this stockpile active? (OBSOLETE?)
     self._sv.size = Point2(0, 0) -- Size of this stockpile in 2D (width, height)
@@ -446,6 +449,7 @@ end
 -- This will remove `location` from the list of possible spots for
 -- something to be put into.
 function StockpileComponent:notify_restock_finished(location)
+  printf('notify restock finished on %s (%s)', tostring(self._entity), tostring(location))
   if self._entity:is_valid() then
     self:_add_to_region(location)
   end
@@ -512,6 +516,7 @@ end
 
 -- Stocks an item in this stockpile. Requirement is that the entity can be stocked and is within the bounds.
 function StockpileComponent:_add_item_to_stock(entity)
+  printf('%s now houses %s!', tostring(self._entity), tostring(entity))
   assert(self:can_stock_entity(entity) and self:bounds_contain(entity), 'entity cannot be stocked or out of bounds')
 
   -- Get the location of said entity
@@ -675,22 +680,39 @@ end
 function StockpileComponent:_create_worker_tasks()
   self:_destroy_tasks()
 
-  if self._sv.size.x > 0 and self._sv.size.y > 0 then
-    local town = stonehearth.town:get_town(self._entity)
+--   if self._sv.size.x > 0 and self._sv.size.y > 0 then
+--     local town = stonehearth.town:get_town(self._entity)
 
-    if town then
-      log:debug 'creating restock task'
-      self._restock_task = town:create_task_for_group('stonehearth:task_group:restock', 'stonehearth:restock_stockpile', {
-          stockpile = self._entity,
-        }
-):set_source(self._entity):set_name 'restock task':set_priority(stonehearth.constants.priorities.simple_labor.RESTOCK_STOCKPILE)
+--     if town then
+--       log:debug 'creating restock task'
+--       self._restock_task = town:create_task_for_group('stonehearth:task_group:restock', 'stonehearth:restock_stockpile', {
+--           stockpile = self._entity,
+--         }
+-- ):set_source(self._entity):set_name 'restock task':set_priority(stonehearth.constants.priorities.simple_labor.RESTOCK_STOCKPILE)
 
-      if self._sv.active then
-        self._restock_task:start()
-      end
-    end
-  end
+--       if self._sv.active then
+--         self._restock_task:start()
+--       end
+--     end
+  -- end
 end
+
+function StockpileComponent:create_restock_task(entity)
+  assert(self._sv.size.x > 0 and self._sv.size.y > 0, 'empty stockpile!')
+
+  local town = stonehearth.town:get_town(self._entity)
+  assert(town, 'stockpile belongs to no town')
+
+  log:debug('create restocking task for %s', entity)
+  self._restock_tasks[entity:get_id()] = town:create_task_for_group('stonehearth:task_group:restock', 'outvetory:restock_stockpile', 
+  { 
+    stockpile = self._entity,
+    entity = entity
+  })
+  :set_source(self._entity):set_name('restock task'):set_priority(stonehearth.constants.priorities.simple_labor.RESTOCK_STOCKPILE)
+  :start()
+end
+
 
 -- OBSOLETE?
 function StockpileComponent:set_active(active)

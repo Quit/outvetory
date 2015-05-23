@@ -1,0 +1,9 @@
+{
+   "components" : {
+      "stonehearth:ai" : {
+         "actions" : [
+            "outvetory:actions:restock_stockpile"
+         ]
+      }
+   }
+}

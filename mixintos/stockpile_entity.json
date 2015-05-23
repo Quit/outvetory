@@ -9,6 +9,11 @@
          "is_full" : {
             "component" : "stonehearth:stockpile",
             "method" : "is_full"
+         },
+
+         "create_restock_task" : {
+            "component" : "stonehearth:stockpile",
+            "method" : "create_restock_task"
          }
       }
    }
